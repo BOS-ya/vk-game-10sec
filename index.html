@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра: Попади в 10 секунд!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #3d5be4 0%, #1f42e0 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .timer {
+            font-size: 72px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+            font-family: 'Courier New', monospace;
+            min-height: 90px;
+        }
+        
+        .click-button {
+            background: linear-gradient(135deg, #ead266 0%, #ead266 100%);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .click-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+        
+        .click-button:active {
+            transform: translateY(0);
+        }
+        
+        .click-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result.win {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        
+        .result.lose {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        
+        .instructions {
+            color: #666;
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .reset-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        
+        .reset-button:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 Попади в 10 секунд!</h1>
+        
+        <div class="timer" id="timer">0.00</div>
+        
+        <button class="click-button" id="clickButton">КЛИК!</button>
+        
+        <div class="result" id="result"></div>
+        
+        <button class="reset-button" id="resetButton" style="display: none;">Начать заново</button>
+        
+        <div class="instructions">
+            Нажмите на кнопку ровно в <strong>10.00 секунд</strong>!<br>
+            Точность до сотых долей секунды
+        </div>
+    </div>
+
+    <script>
+        let startTime = null;
+        let timerInterval = null;
+        let isGameActive = false;
+        let gameFinished = false;
+        
+        const timerDisplay = document.getElementById('timer');
+        const clickButton = document.getElementById('clickButton');
+        const resultDisplay = document.getElementById('result');
+        const resetButton = document.getElementById('resetButton');
+        
+        // Запуск таймера при загрузке страницы
+        function startGame() {
+            startTime = Date.now();
+            isGameActive = true;
+            gameFinished = false;
+            clickButton.disabled = false;
+            resultDisplay.className = 'result';
+            resultDisplay.textContent = '';
+            resetButton.style.display = 'none';
+            
+            timerInterval = setInterval(updateTimer, 10);
+        }
+        
+        // Обновление отображения таймера
+        function updateTimer() {
+            if (!isGameActive) return;
+            
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime) / 1000;
+            
+            timerDisplay.textContent = elapsedTime.toFixed(2);
+            
+            // Остановка при достижении 10.01 секунд
+            if (elapsedTime >= 10.01) {
+                endGame(false, elapsedTime);
+            }
+        }
+        
+        // Обработка клика
+        clickButton.addEventListener('click', function() {
+            if (!isGameActive || gameFinished) return;
+            
+            const currentTime = Date.now();
+            const clickTime = (currentTime - startTime) / 1000;
+            
+            // Проверка: попадание в 10.00 (допуск ±0.01 секунды)
+            if (clickTime >= 9.99 && clickTime <= 10.01) {
+                endGame(true, clickTime);
+            } else {
+                endGame(false, clickTime);
+            }
+        });
+        
+        // Завершение игры
+        function endGame(won, time) {
+            isGameActive = false;
+            gameFinished = true;
+            clearInterval(timerInterval);
+            clickButton.disabled = true;
+            
+            if (won) {
+                resultDisplay.className = 'result win';
+                resultDisplay.textContent = '🎉 ПОБЕДА! 🎉';
+            } else {
+                resultDisplay.className = 'result lose';
+                resultDisplay.textContent = `Время попытки: ${time.toFixed(2)} сек`;
+            }
+            
+            resetButton.style.display = 'inline-block';
+        }
+        
+        // Сброс игры
+        resetButton.addEventListener('click', function() {
+            timerDisplay.textContent = '0.00';
+            startGame();
+        });
+        
+        // Автоматический старт игры
+        startGame();
+    </script>
+</body>
+</html>
