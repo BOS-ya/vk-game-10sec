@@ -218,33 +218,35 @@
             timerInterval = setInterval(updateTimer, 10);
         }
         
-        // Обновление таймера
-        function updateTimer() {
-            if (!isGameActive) return;
-            
-            const currentTime = Date.now();
-            const elapsedTime = (currentTime - startTime) / 1000;
-            
-            timerDisplay.textContent = elapsedTime.toFixed(2);
-            
-            if (elapsedTime >= 10.01) {
-                endGame(false, elapsedTime);
-            }
-        }
-        
-        // Обработка клика
-        clickButton.addEventListener('click', function() {
-            if (!isGameActive) return;
-            
-            const currentTime = Date.now();
-            const clickTime = (currentTime - startTime) / 1000;
-            
-            if (clickTime >= 9.99 && clickTime <= 10.01) {
-                endGame(true, clickTime);
-            } else {
-                endGame(false, clickTime);
-            }
-        });
+     // Обновление таймера
+function updateTimer() {
+    if (!isGameActive) return;
+    
+    const currentTime = Date.now();
+    const elapsedTime = (currentTime - startTime) / 1000;
+    
+    timerDisplay.textContent = elapsedTime.toFixed(2);
+    
+    // ИЗМЕНЕНО: таймер считает до 11.01 вместо 10.01
+    if (elapsedTime >= 11.01) {
+        endGame(false, elapsedTime);
+    }
+}
+
+// Обработка клика 
+clickButton.addEventListener('click', function() {
+    if (!isGameActive) return;
+    
+    const currentTime = Date.now();
+    const clickTime = (currentTime - startTime) / 1000;
+    
+    // Цель остаётся 10.00 секунд
+    if (clickTime >= 9.99 && clickTime <= 10.01) {
+        endGame(true, clickTime);
+    } else {
+        endGame(false, clickTime);
+    }
+});
         
         // Завершение игры
         async function endGame(won, time) {
