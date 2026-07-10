@@ -2,83 +2,59 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Игра: Попади в 10 секунд!</title>
-    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        
-        :root {
-            --vh: 1vh;
         }
         
         body {
-            font-family: 'FuturisXC', sans-serif;
-            background: linear-gradient(135deg, #009bdd 0%, #009bdd 100%);
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            min-height: calc(var(--vh, 1vh) * 100);
             padding: 20px;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
         }
         
         .game-container {
             background: white;
             border-radius: 20px;
-            padding: 30px 20px;
+            padding: 40px 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
             max-width: 500px;
             width: 100%;
-            padding-left: max(20px, env(safe-area-inset-left));
-            padding-right: max(20px, env(safe-area-inset-right));
-            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
         
         h1 {
-            color: #4a4a4a;
+            color: #333;
             margin-bottom: 20px;
-            font-size: 26px;
-            line-height: 1.3;
+            font-size: 28px;
         }
         
         .timer {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: bold;
-            color: #4a4a4a;
-            margin: 20px 0;
+            color: #667eea;
+            margin: 30px 0;
             font-family: 'Courier New', monospace;
-            line-height: 1;
         }
         
         .click-button {
-            background: linear-gradient(135deg, hsl(61, 100%, 43%) 0%, hsl(61, 100%, 43%) 100%);
-            color: rgb(0, 0, 0);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
             padding: 20px 60px;
             font-size: 24px;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.1s;
             width: 100%;
             max-width: 300px;
-            -webkit-appearance: none;
-            appearance: none;
-            touch-action: manipulation;
         }
         
         .click-button:active {
@@ -87,143 +63,82 @@
         
         .click-button:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
         
         .result {
-            margin-top: 25px;
+            margin-top: 30px;
             padding: 20px;
             border-radius: 10px;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
-            min-height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
         .result.win {
-            background: #ffffff;
-            color: #ff0000;
+            background: #d4edda;
+            color: #155724;
         }
         
         .result.lose {
-            background: #ffffff;
-            color: #000000;
+            background: #f8d7da;
+            color: #721c24;
         }
         
         .buttons {
             margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
         }
         
-        .reset-button, .share-button {
-            background: #4a4a4a;
+        button {
+            background: #6c757d;
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 30px;
             font-size: 16px;
             border-radius: 25px;
             cursor: pointer;
-            -webkit-appearance: none;
-            appearance: none;
-            touch-action: manipulation;
-            flex: 1;
-            min-width: 140px;
-            max-width: 200px;
+            margin: 5px;
         }
         
         .share-button {
-            background: #4a4a4a;
-        }
-        
-        .reset-button:active, .share-button:active {
-            opacity: 0.8;
+            background: #4C75A3;
         }
         
         .instructions {
-            color: #000000;
+            color: #666;
             margin-top: 20px;
-            font-size: 15px;
-            line-height: 1.5;
+            font-size: 16px;
         }
         
-        /* Адаптация для маленьких экранов iPhone */
-        @media (max-width: 480px) {
-            .timer {
-                font-size: 52px;
-            }
-            
-            .click-button {
-                font-size: 22px;
-                padding: 18px 40px;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
-            
-            .result {
-                font-size: 18px;
-                padding: 15px;
-            }
-            
-            .instructions {
-                font-size: 14px;
-            }
-        }
-        
-        /* Для очень маленьких экранов */
-        @media (max-width: 375px) {
-            .timer {
-                font-size: 44px;
-            }
-            
-            .click-button {
-                font-size: 20px;
-                padding: 16px 30px;
-            }
-            
-            h1 {
-                font-size: 20px;
-            }
+        #loading {
+            color: #667eea;
+            font-size: 18px;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>🎯 Попади в 10 секунд!</h1>
-        
-        <div class="timer" id="timer">0.00</div>
-        
-        <button class="click-button" id="clickButton">ЖМИ!</button>
-        
+        <div id="loading">Загрузка...</div>
+        <div class="timer" id="timer" style="display:none;">0.00</div>
+        <button class="click-button" id="clickButton" style="display:none;">ЖМИ!</button>
         <div class="result" id="result"></div>
-        
         <div class="buttons">
-            <button class="reset-button" id="resetButton" style="display: none;">🔄 Заново</button>
-            <button class="share-button" id="shareButton" style="display: none;">📤 Поделиться</button>
+            <button id="resetButton" style="display: none;">🔄 Заново</button>
+            <button class="share-button" id="shareButton" style="display: none;"> Поделиться</button>
         </div>
-        
         <div class="instructions">
-            Нажмите на кнопку ровно в <strong>10.00 секунд</strong>!<br>
-            Точность до сотых долей секунды
+            Нажмите на кнопку ровно в <strong>10.00 секунд</strong>!
         </div>
     </div>
 
     <script>
-        // Исправление для iOS Safari
-        function setVHVariable() {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-        
-        setVHVariable();
-        window.addEventListener('resize', setVHVariable);
-        window.addEventListener('orientationchange', setVHVariable);
+        // Показываем, что игра загрузилась
+        window.addEventListener('load', function() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('timer').style.display = 'block';
+            document.getElementById('clickButton').style.display = 'block';
+            startGame();
+        });
         
         let startTime = null;
         let timerInterval = null;
@@ -237,22 +152,6 @@
         const resetButton = document.getElementById('resetButton');
         const shareButton = document.getElementById('shareButton');
         
-        // Универсальная функция для обработки нажатий (iOS + Android + Desktop)
-        function addTouchHandler(element, handler) {
-            // iOS touch
-            element.addEventListener('touchstart', function(e) {
-                if (element.disabled) return;
-                e.preventDefault();
-                handler(e);
-            }, { passive: false });
-            
-            // Mouse click (desktop)
-            element.addEventListener('click', function(e) {
-                if (element.disabled) return;
-                handler(e);
-            });
-        }
-        
         function startGame() {
             startTime = Date.now();
             isGameActive = true;
@@ -263,31 +162,24 @@
             resultDisplay.textContent = '';
             resetButton.style.display = 'none';
             shareButton.style.display = 'none';
-            
             timerInterval = setInterval(updateTimer, 10);
         }
         
         function updateTimer() {
             if (!isGameActive) return;
-            
             const currentTime = Date.now();
             const elapsedTime = (currentTime - startTime) / 1000;
-            
             lastDisplayedTime = elapsedTime.toFixed(2);
             timerDisplay.textContent = lastDisplayedTime;
-            
             if (elapsedTime >= 11.01) {
                 endGame(false, parseFloat(lastDisplayedTime));
             }
         }
         
-        // Обработчик для кнопки клика с поддержкой iOS
-        addTouchHandler(clickButton, function(e) {
+        clickButton.addEventListener('click', function() {
             if (!isGameActive) return;
-            
             const clickTime = parseFloat(lastDisplayedTime);
-            
-            if (clickTime > 9.99 && clickTime < 10.01) {
+            if (clickTime >= 9.99 && clickTime <= 10.01) {
                 endGame(true, clickTime);
             } else {
                 endGame(false, clickTime);
@@ -299,38 +191,30 @@
             lastResult = { won, time };
             clearInterval(timerInterval);
             clickButton.disabled = true;
-            
             if (won) {
                 resultDisplay.className = 'result win';
-                resultDisplay.textContent = '🎉 ПОБЕДА! ';
+                resultDisplay.textContent = ' ПОБЕДА!';
             } else {
                 resultDisplay.className = 'result lose';
-                resultDisplay.textContent = `Время попытки: ${time.toFixed(2)} сек`;
+                resultDisplay.textContent = 'Время: ' + time.toFixed(2) + ' сек';
             }
-            
             resetButton.style.display = 'inline-block';
             shareButton.style.display = 'inline-block';
         }
         
-        // Обработчики для кнопок с поддержкой iOS
-        addTouchHandler(resetButton, function() {
+        resetButton.addEventListener('click', function() {
             timerDisplay.textContent = '0.00';
             startGame();
         });
         
-        addTouchHandler(shareButton, function() {
+        shareButton.addEventListener('click', function() {
             if (!lastResult) return;
-            
             const message = lastResult.won 
-                ? `🎉 Я попал ровно в 10.00 секунд! Попробуй тоже!`
-                : `⏱️ Моё время: ${lastResult.time.toFixed(2)} сек. Сможешь лучше?`;
-            
-            const url = `https://vk.com/share.php?title=${encodeURIComponent(message)}`;
+                ? '🎉 Я попал в 10.00 секунд!'
+                : 'Моё время: ' + lastResult.time.toFixed(2) + ' сек';
+            const url = 'https://vk.com/share.php?title=' + encodeURIComponent(message);
             window.open(url, '_blank');
         });
-        
-        // Старт игры
-        startGame();
     </script>
 </body>
 </html>
