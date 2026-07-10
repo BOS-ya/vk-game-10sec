@@ -193,7 +193,7 @@
             lastResult = { won, time };
             clearInterval(timerInterval);
             clickButton.disabled = true;
-            
+            timerDisplay.textContent = time.toFixed(2);
             if (won) {
                 resultDisplay.className = 'result win';
                 resultDisplay.textContent = '🎉 ПОБЕДА! 🎉';
