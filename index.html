@@ -9,78 +9,195 @@
     <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
     
     <style>
-        /* Ваши стили */
+          <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Игра: Попади в 10 секунд!</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        :root {
+            --vh: 1vh;
+        }
+        
         body {
             font-family: 'FuturisXC', sans-serif;
-            background: linear-gradient(135deg, #FEFEFE 0%, #009BDE 100%);
+            background: linear-gradient(135deg, #009bdd 0%, #009bdd 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            min-height: calc(var(--vh, 1vh) * 100);
             padding: 20px;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         .game-container {
             background: white;
             border-radius: 20px;
-            padding: 40px;
+            padding: 30px 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
             max-width: 500px;
             width: 100%;
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+        
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 20px;
+            font-size: 26px;
+            line-height: 1.3;
         }
         
         .timer {
-            font-size: 72px;
+            font-size: 64px;
             font-weight: bold;
-            color: #009BDE;
-            margin: 30px 0;
-            font-family: 'FuturisXC', monospace;
+            color: #4a4a4a;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            line-height: 1;
         }
         
         .click-button {
-            background: linear-gradient(135deg, #009BDE 0%, #009BDE 100%);
-            color: white;
+            background: linear-gradient(135deg, hsl(61, 100%, 43%) 0%, hsl(61, 100%, 43%) 100%);
+            color: rgb(0, 0, 0);
             border: none;
             padding: 20px 60px;
             font-size: 24px;
             border-radius: 50px;
             cursor: pointer;
+            transition: transform 0.1s;
+            width: 100%;
+            max-width: 300px;
+            -webkit-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
+        }
+        
+        .click-button:active {
+            transform: scale(0.95);
+        }
+        
+        .click-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .result {
-            margin-top: 30px;
+            margin-top: 25px;
             padding: 20px;
             border-radius: 10px;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
+            min-height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .result.win {
-            background: #4a4a4a;
-            color: #f30505;
+            background: #ffffff;
+            color: #ff0000;
         }
         
         .result.lose {
-            background: #009BDE;
-            color: #4a4a4a;
+            background: #ffffff;
+            color: #000000;
         }
         
-        .best-time {
+        .buttons {
             margin-top: 20px;
-            font-size: 18px;
-            color: #4a4a4a;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
         
-        .share-button {
-            background: #4C75A3;
+        .reset-button, .share-button {
+            background: #4a4a4a;
             color: white;
             border: none;
-            padding: 10px 30px;
+            padding: 12px 25px;
             font-size: 16px;
             border-radius: 25px;
             cursor: pointer;
-            margin-top: 10px;
+            -webkit-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
+            flex: 1;
+            min-width: 140px;
+            max-width: 200px;
+        }
+        
+        .share-button {
+            background: #4a4a4a;
+        }
+        
+        .reset-button:active, .share-button:active {
+            opacity: 0.8;
+        }
+        
+        .instructions {
+            color: #000000;
+            margin-top: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        /* Адаптация для маленьких экранов iPhone */
+        @media (max-width: 480px) {
+            .timer {
+                font-size: 52px;
+            }
+            
+            .click-button {
+                font-size: 22px;
+                padding: 18px 40px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .result {
+                font-size: 18px;
+                padding: 15px;
+            }
+            
+            .instructions {
+                font-size: 14px;
+            }
+        }
+        
+        /* Для очень маленьких экранов */
+        @media (max-width: 375px) {
+            .timer {
+                font-size: 44px;
+            }
+            
+            .click-button {
+                font-size: 20px;
+                padding: 16px 30px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -241,7 +358,7 @@ clickButton.addEventListener('click', function() {
     const clickTime = (currentTime - startTime) / 1000;
     
     // Цель остаётся 10.00 секунд
-    if (clickTime >= 9.99 && clickTime <= 10.01) {
+    if (clickTime > 9.99 && clickTime < 10.01) {
         endGame(true, clickTime);
     } else {
         endGame(false, clickTime);
@@ -254,7 +371,7 @@ clickButton.addEventListener('click', function() {
             lastResult = { won, time };
             clearInterval(timerInterval);
             clickButton.disabled = true;
-            
+             timerDisplay.textContent = time.toFixed(2);
             if (won) {
                 resultDisplay.className = 'result win';
                 resultDisplay.textContent = '🎉 ПОБЕДА! 🎉';
