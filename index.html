@@ -2,14 +2,6 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Игра: Попади в 10 секунд!</title>
-    
-    <!-- VK Bridge -->
-    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-    
-    <style>
-          <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -32,7 +24,7 @@
         }
         
         body {
-            font-family: 'FuturisXC', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #009bdd 0%, #009bdd 100%);
             display: flex;
             justify-content: center;
@@ -48,13 +40,14 @@
             background: white;
             border-radius: 20px;
             padding: 30px 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             text-align: center;
             max-width: 500px;
             width: 100%;
             padding-left: max(20px, env(safe-area-inset-left));
             padding-right: max(20px, env(safe-area-inset-right));
             padding-bottom: max(20px, env(safe-area-inset-bottom));
+            will-change: transform;
         }
         
         h1 {
@@ -74,19 +67,19 @@
         }
         
         .click-button {
-            background: linear-gradient(135deg, hsl(61, 100%, 43%) 0%, hsl(61, 100%, 43%) 100%);
-            color: rgb(0, 0, 0);
+            background: hsl(0, 98%, 48%);
+            color:  rgb(255, 255, 255);
             border: none;
             padding: 20px 60px;
             font-size: 24px;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.1s;
             width: 100%;
             max-width: 300px;
             -webkit-appearance: none;
             appearance: none;
             touch-action: manipulation;
+            will-change: transform;
         }
         
         .click-button:active {
@@ -95,7 +88,6 @@
         
         .click-button:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
         
         .result {
@@ -144,10 +136,6 @@
             max-width: 200px;
         }
         
-        .share-button {
-            background: #4a4a4a;
-        }
-        
         .reset-button:active, .share-button:active {
             opacity: 0.8;
         }
@@ -159,70 +147,31 @@
             line-height: 1.5;
         }
         
-        /* Адаптация для маленьких экранов iPhone */
         @media (max-width: 480px) {
-            .timer {
-                font-size: 52px;
-            }
-            
-            .click-button {
-                font-size: 22px;
-                padding: 18px 40px;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
-            
-            .result {
-                font-size: 18px;
-                padding: 15px;
-            }
-            
-            .instructions {
-                font-size: 14px;
-            }
+            .timer { font-size: 52px; }
+            .click-button { font-size: 22px; padding: 18px 40px; }
+            h1 { font-size: 22px; }
+            .result { font-size: 18px; padding: 15px; }
+            .instructions { font-size: 14px; }
         }
         
-        /* Для очень маленьких экранов */
         @media (max-width: 375px) {
-            .timer {
-                font-size: 44px;
-            }
-            
-            .click-button {
-                font-size: 20px;
-                padding: 16px 30px;
-            }
-            
-            h1 {
-                font-size: 20px;
-            }
+            .timer { font-size: 44px; }
+            .click-button { font-size: 20px; padding: 16px 30px; }
+            h1 { font-size: 20px; }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <h1>🎯 Попади в 10 секунд!</h1>
-        
         <div class="timer" id="timer">0.00</div>
-        
         <button class="click-button" id="clickButton">ЖМИ</button>
-        
         <div class="result" id="result"></div>
-        
         <div class="best-time" id="bestTime"></div>
-        
-        <button class="share-button" id="shareButton" style="display: none;">
-            Поделиться результатом
-        </button>
-        
-        <button class="reset-button" id="resetButton" style="display: none;">
-            Начать заново
-        </button>
-        
+        <button class="share-button" id="shareButton" style="display: none;">Поделиться результатом</button>
+        <button class="reset-button" id="resetButton" style="display: none;">Начать заново</button>
         <div class="error-message" id="errorMessage"></div>
-        
         <div class="instructions">
             Нажмите на кнопку ровно в <strong>10.00 секунд</strong>!<br>
             Точность до сотых долей секунды
@@ -230,218 +179,211 @@
     </div>
 
     <script>
-       let vkBridgeInitialized = false;
-        
-        async function initVKBridge() {
-            try {
-                await vkBridge.send('VKWebAppInit');
-                vkBridgeInitialized = true;
-                console.log('VK Bridge инициализирован');
-                
-                // Запрос прав на публикацию (опционально)
-                try {
-                    await vkBridge.send('VKWebAppGetAuthToken', {
-                        scope: 'wall'
-                    });
-                } catch (authError) {
-                    console.log('Авторизация не требуется или отклонена');
-                }
-            } catch (error) {
-                console.error('Ошибка инициализации VK Bridge:', error);
-                vkBridgeInitialized = false;
-            }
-        }
-        
-        // Запуск инициализации
-        initVKBridge();
-        
-        let startTime = null;
-        let timerInterval = null;
-        let isGameActive = false;
-        let lastResult = null;
-        
-        const timerDisplay = document.getElementById('timer');
-        const clickButton = document.getElementById('clickButton');
-        const resultDisplay = document.getElementById('result');
-        const resetButton = document.getElementById('resetButton');
-        const shareButton = document.getElementById('shareButton');
-        const bestTimeDisplay = document.getElementById('bestTime');
-        const errorMessage = document.getElementById('errorMessage');
-        
-        // Сохранение результата
-        async function saveResult(time, isWin) {
-            if (!vkBridgeInitialized) return;
+        // Ждем полной загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            let vkBridgeInitialized = false;
+            let startTime = null;
+            let animationFrameId = null;
+            let isGameActive = false;
+            let lastResult = null;
             
-            try {
-                await vkBridge.send('VKWebAppStorageSet', {
-                    key: 'last_result',
-                    value: JSON.stringify({
-                        time: time.toFixed(2),
-                        isWin: isWin,
-                        date: new Date().toISOString()
-                    })
-                });
+            const timerDisplay = document.getElementById('timer');
+            const clickButton = document.getElementById('clickButton');
+            const resultDisplay = document.getElementById('result');
+            const resetButton = document.getElementById('resetButton');
+            const shareButton = document.getElementById('shareButton');
+            const bestTimeDisplay = document.getElementById('bestTime');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Асинхронная загрузка VK Bridge (не блокирует рендеринг)
+            function loadVKBridge() {
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js';
+                script.async = true;
+                script.onload = function() {
+                    initVKBridge();
+                };
+                document.body.appendChild(script);
+            }
+            
+            async function initVKBridge() {
+                try {
+                    await vkBridge.send('VKWebAppInit');
+                    vkBridgeInitialized = true;
+                    loadBestTime();
+                } catch (error) {
+                    console.error('VK Bridge error:', error);
+                    vkBridgeInitialized = false;
+                }
+            }
+            
+            async function saveResult(time, isWin) {
+                if (!vkBridgeInitialized) return;
                 
-                if (isWin) {
-                    const bestTime = await getBestTime();
-                    if (!bestTime || time < bestTime) {
-                        await vkBridge.send('VKWebAppStorageSet', {
-                            key: 'best_time',
-                            value: time.toFixed(2)
+                try {
+                    await vkBridge.send('VKWebAppStorageSet', {
+                        key: 'last_result',
+                        value: JSON.stringify({
+                            time: time.toFixed(2),
+                            isWin: isWin,
+                            date: new Date().toISOString()
+                        })
+                    });
+                    
+                    if (isWin) {
+                        const bestTime = await getBestTime();
+                        if (!bestTime || time < bestTime) {
+                            await vkBridge.send('VKWebAppStorageSet', {
+                                key: 'best_time',
+                                value: time.toFixed(2)
+                            });
+                            bestTimeDisplay.textContent = `🏆 Лучший результат: ${time.toFixed(2)} сек`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Save error:', error);
+                }
+            }
+            
+            async function getBestTime() {
+                if (!vkBridgeInitialized) return null;
+                
+                try {
+                    const result = await vkBridge.send('VKWebAppStorageGet', {
+                        keys: ['best_time']
+                    });
+                    const bestTime = result.keys.find(k => k.key === 'best_time');
+                    return bestTime ? parseFloat(bestTime.value) : null;
+                } catch (error) {
+                    return null;
+                }
+            }
+            
+            async function loadBestTime() {
+                const bestTime = await getBestTime();
+                if (bestTime) {
+                    bestTimeDisplay.textContent = `🏆 Лучший результат: ${bestTime.toFixed(2)} сек`;
+                }
+            }
+            
+            // Оптимизированный таймер через requestAnimationFrame
+            function updateTimer() {
+                if (!isGameActive) return;
+                
+                const currentTime = Date.now();
+                const elapsedTime = (currentTime - startTime) / 1000;
+                
+                timerDisplay.textContent = elapsedTime.toFixed(2);
+                
+                if (elapsedTime >= 11.01) {
+                    endGame(false, elapsedTime);
+                    return;
+                }
+                
+                animationFrameId = requestAnimationFrame(updateTimer);
+            }
+            
+            function startGame() {
+                startTime = Date.now();
+                isGameActive = true;
+                lastResult = null;
+                clickButton.disabled = false;
+                resultDisplay.className = 'result';
+                resultDisplay.textContent = '';
+                resetButton.style.display = 'none';
+                shareButton.style.display = 'none';
+                errorMessage.style.display = 'none';
+                
+                animationFrameId = requestAnimationFrame(updateTimer);
+            }
+            
+            clickButton.addEventListener('click', function() {
+                if (!isGameActive) return;
+                
+                const currentTime = Date.now();
+                const clickTime = (currentTime - startTime) / 1000;
+                
+                if (clickTime > 9.999 && clickTime < 10.001) {
+                    endGame(true, clickTime);
+                } else {
+                    endGame(false, clickTime);
+                }
+            });
+            
+            async function endGame(won, time) {
+                isGameActive = false;
+                lastResult = { won, time };
+                
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+                
+                clickButton.disabled = true;
+                timerDisplay.textContent = time.toFixed(2);
+                
+                if (won) {
+                    resultDisplay.className = 'result win';
+                    resultDisplay.textContent = '🎉 ПОБЕДА! 🎉';
+                } else {
+                    resultDisplay.className = 'result lose';
+                    resultDisplay.textContent = `Время попытки: ${time.toFixed(2)} сек`;
+                }
+                
+                resetButton.style.display = 'inline-block';
+                shareButton.style.display = 'inline-block';
+                
+                await saveResult(time, won);
+            }
+            
+            shareButton.addEventListener('click', async function() {
+                if (!lastResult) {
+                    showError('Нет результата для публикации');
+                    return;
+                }
+                
+                const message = lastResult.won 
+                    ? `🎉 Я попал ровно в 10.00 секунд в игре "Попади в 10 секунд"! Попробуй тоже!`
+                    : `⏱️ Моё время: ${lastResult.time.toFixed(2)} сек в игре "Попади в 10 секунд". Сможешь лучше?`;
+                
+                if (vkBridgeInitialized) {
+                    try {
+                        await vkBridge.send('VKWebAppShowWallPostBox', {
+                            message: message,
+                            attachments: ''
                         });
-                        bestTimeDisplay.textContent = `🏆 Лучший результат: ${time.toFixed(2)} сек`;
+                        return;
+                    } catch (error) {
+                        console.error('VK Bridge share error:', error);
                     }
                 }
-            } catch (error) {
-                console.error('Ошибка сохранения:', error);
-            }
-        }
-        
-        // Получение лучшего результата
-        async function getBestTime() {
-            if (!vkBridgeInitialized) return null;
-            
-            try {
-                const result = await vkBridge.send('VKWebAppStorageGet', {
-                    keys: ['best_time']
-                });
-                const bestTime = result.keys.find(k => k.key === 'best_time');
-                return bestTime ? parseFloat(bestTime.value) : null;
-            } catch (error) {
-                return null;
-            }
-        }
-        
-        // Загрузка лучшего результата при старте
-        async function loadBestTime() {
-            const bestTime = await getBestTime();
-            if (bestTime) {
-                bestTimeDisplay.textContent = `🏆 Лучший результат: ${bestTime.toFixed(2)} сек`;
-            }
-        }
-        
-        // Запуск игры
-        function startGame() {
-            startTime = Date.now();
-            isGameActive = true;
-            lastResult = null;
-            clickButton.disabled = false;
-            resultDisplay.className = 'result';
-            resultDisplay.textContent = '';
-            resetButton.style.display = 'none';
-            shareButton.style.display = 'none';
-            errorMessage.style.display = 'none';
-            
-            timerInterval = setInterval(updateTimer, 10);
-        }
-        
-     // Обновление таймера
-function updateTimer() {
-    if (!isGameActive) return;
-    
-    const currentTime = Date.now();
-    const elapsedTime = (currentTime - startTime) / 1000;
-    
-    timerDisplay.textContent = elapsedTime.toFixed(2);
-    
-    // ИЗМЕНЕНО: таймер считает до 11.01 вместо 10.01
-    if (elapsedTime >= 11.01) {
-        endGame(false, elapsedTime);
-    }
-}
-
-// Обработка клика 
-clickButton.addEventListener('click', function() {
-    if (!isGameActive) return;
-    
-    const currentTime = Date.now();
-    const clickTime = (currentTime - startTime) / 1000;
-    
-    // Цель остаётся 10.00 секунд
-    if (clickTime > 9.99 && clickTime < 10.01) {
-        endGame(true, clickTime);
-    } else {
-        endGame(false, clickTime);
-    }
-});
-        
-        // Завершение игры
-        async function endGame(won, time) {
-            isGameActive = false;
-            lastResult = { won, time };
-            clearInterval(timerInterval);
-            clickButton.disabled = true;
-             timerDisplay.textContent = time.toFixed(2);
-            if (won) {
-                resultDisplay.className = 'result win';
-                resultDisplay.textContent = '🎉 ПОБЕДА! 🎉';
-            } else {
-                resultDisplay.className = 'result lose';
-                resultDisplay.textContent = `Время попытки: ${time.toFixed(2)} сек`;
-            }
-            
-            resetButton.style.display = 'inline-block';
-            shareButton.style.display = 'inline-block';
-            
-            // Сохранение результата
-            await saveResult(time, won);
-        }
-        
-        // Поделиться результатом - ИСПРАВЛЕННАЯ ВЕРСИЯ
-        shareButton.addEventListener('click', async function() {
-            if (!lastResult) {
-                showError('Нет результата для публикации');
-                return;
-            }
-            
-            const message = lastResult.won 
-                ? `🎉 Я попал ровно в 10.00 секунд в игре "Попади в 10 секунд"! Попробуй тоже!`
-                : `⏱️ Моё время: ${lastResult.time.toFixed(2)} сек в игре "Попади в 10 секунд". Сможешь лучше?`;
-            
-            // Способ 1: Через VK Bridge (работает внутри ВК)
-            if (vkBridgeInitialized) {
+                
                 try {
-                    await vkBridge.send('VKWebAppShowWallPostBox', {
-                        message: message,
-                        attachments: '' // можно добавить ссылку на приложение
-                    });
-                    console.log('Публикация через VK Bridge успешна');
-                    return;
+                    const shareUrl = `https://vk.com/share.php?title=${encodeURIComponent(message)}`;
+                    window.open(shareUrl, '_blank', 'width=600,height=400');
                 } catch (error) {
-                    console.error('Ошибка VK Bridge:', error);
-                    // Если не получилось через VK Bridge, пробуем другой способ
+                    showError('Не удалось поделиться');
                 }
+            });
+            
+            function showError(text) {
+                errorMessage.textContent = text;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
             }
             
-            // Способ 2: Открытие окна шеринга ВК в новой вкладке
-            try {
-                const shareUrl = `https://vk.com/share.php?title=${encodeURIComponent(message)}`;
-                window.open(shareUrl, '_blank', 'width=600,height=400');
-                console.log('Открыто окно шеринга ВК');
-            } catch (error) {
-                console.error('Ошибка открытия окна шеринга:', error);
-                showError('Не удалось поделиться. Попробуйте скопировать текст вручную.');
-            }
-        });
-        
-        // Показать сообщение об ошибке
-        function showError(text) {
-            errorMessage.textContent = text;
-            errorMessage.style.display = 'block';
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
-        }
-        
-        // Сброс игры
-        resetButton.addEventListener('click', function() {
-            timerDisplay.textContent = '0.00';
+            resetButton.addEventListener('click', function() {
+                timerDisplay.textContent = '0.00';
+                startGame();
+            });
+            
+            // Запускаем игру сразу
             startGame();
+            
+            // Загружаем VK Bridge асинхронно после старта игры
+            loadVKBridge();
         });
-        
-        // Загрузка рекорда и старт игры
-        loadBestTime();
-        startGame();
     </script>
 </body>
 </html>
