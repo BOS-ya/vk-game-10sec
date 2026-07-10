@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
     <title>Игра: Попади в 10 секунд!</title>
     
     <style>
@@ -10,59 +13,76 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        :root {
+            --vh: 1vh;
         }
         
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #ffffff 0%, #009bdd 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            min-height: calc(var(--vh, 1vh) * 100);
             padding: 20px;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
         
         .game-container {
             background: white;
             border-radius: 20px;
-            padding: 40px;
+            padding: 30px 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             text-align: center;
             max-width: 500px;
             width: 100%;
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
         }
         
         h1 {
-            color: #4a4a4a;
+            color: #333;
             margin-bottom: 20px;
-            font-size: 28px;
+            font-size: 26px;
+            line-height: 1.3;
         }
         
         .timer {
-            font-size: 72px;
+            font-size: 64px;
             font-weight: bold;
-            color: #4a4a4a;
-            margin: 30px 0;
+            color: #667eea;
+            margin: 20px 0;
             font-family: 'Courier New', monospace;
+            line-height: 1;
         }
         
         .click-button {
-            background: linear-gradient(135deg, #ffff00 0%, #ffff00 100%);
-            color: #4a4a4a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
             padding: 20px 60px;
             font-size: 24px;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .click-button:hover {
-            transform: scale(1.05);
+            transition: transform 0.1s;
+            width: 100%;
+            max-width: 300px;
+            -webkit-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
         }
         
         .click-button:active {
-            transform: scale(0.98);
+            transform: scale(0.95);
         }
         
         .click-button:disabled {
@@ -71,48 +91,105 @@
         }
         
         .result {
-            margin-top: 30px;
+            margin-top: 25px;
             padding: 20px;
             border-radius: 10px;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
-            min-height: 70px;
+            min-height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .result.win {
-            background: #ffffff;
-            color: #ff0000;
+            background: #d4edda;
+            color: #155724;
         }
         
         .result.lose {
-            background: #ffffff;
-            color: #4a4a4a;
+            background: #f8d7da;
+            color: #721c24;
         }
         
         .buttons {
             margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
         
         .reset-button, .share-button {
             background: #6c757d;
             color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 12px 25px;
             font-size: 16px;
             border-radius: 25px;
             cursor: pointer;
-            margin: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            touch-action: manipulation;
+            flex: 1;
+            min-width: 140px;
+            max-width: 200px;
         }
         
         .share-button {
             background: #4C75A3;
         }
         
+        .reset-button:active, .share-button:active {
+            opacity: 0.8;
+        }
+        
         .instructions {
-            color: #4a4a4a;
+            color: #666;
             margin-top: 20px;
-            font-size: 16px;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        /* Адаптация для маленьких экранов iPhone */
+        @media (max-width: 480px) {
+            .timer {
+                font-size: 52px;
+            }
+            
+            .click-button {
+                font-size: 22px;
+                padding: 18px 40px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .result {
+                font-size: 18px;
+                padding: 15px;
+            }
+            
+            .instructions {
+                font-size: 14px;
+            }
+        }
+        
+        /* Для очень маленьких экранов */
+        @media (max-width: 375px) {
+            .timer {
+                font-size: 44px;
+            }
+            
+            .click-button {
+                font-size: 20px;
+                padding: 16px 30px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -127,7 +204,7 @@
         <div class="result" id="result"></div>
         
         <div class="buttons">
-            <button class="reset-button" id="resetButton" style="display: none;">Начать заново</button>
+            <button class="reset-button" id="resetButton" style="display: none;">🔄 Заново</button>
             <button class="share-button" id="shareButton" style="display: none;">📤 Поделиться</button>
         </div>
         
@@ -138,10 +215,21 @@
     </div>
 
     <script>
+        // Исправление для iOS Safari
+        function setVHVariable() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        
+        setVHVariable();
+        window.addEventListener('resize', setVHVariable);
+        window.addEventListener('orientationchange', setVHVariable);
+        
         let startTime = null;
         let timerInterval = null;
         let isGameActive = false;
         let lastResult = null;
+        let lastDisplayedTime = '0.00';
         
         const timerDisplay = document.getElementById('timer');
         const clickButton = document.getElementById('clickButton');
@@ -149,10 +237,27 @@
         const resetButton = document.getElementById('resetButton');
         const shareButton = document.getElementById('shareButton');
         
+        // Универсальная функция для обработки нажатий (iOS + Android + Desktop)
+        function addTouchHandler(element, handler) {
+            // iOS touch
+            element.addEventListener('touchstart', function(e) {
+                if (element.disabled) return;
+                e.preventDefault();
+                handler(e);
+            }, { passive: false });
+            
+            // Mouse click (desktop)
+            element.addEventListener('click', function(e) {
+                if (element.disabled) return;
+                handler(e);
+            });
+        }
+        
         function startGame() {
             startTime = Date.now();
             isGameActive = true;
             lastResult = null;
+            lastDisplayedTime = '0.00';
             clickButton.disabled = false;
             resultDisplay.className = 'result';
             resultDisplay.textContent = '';
@@ -168,18 +273,19 @@
             const currentTime = Date.now();
             const elapsedTime = (currentTime - startTime) / 1000;
             
-            timerDisplay.textContent = elapsedTime.toFixed(2);
+            lastDisplayedTime = elapsedTime.toFixed(2);
+            timerDisplay.textContent = lastDisplayedTime;
             
             if (elapsedTime >= 11.01) {
-                endGame(false, elapsedTime);
+                endGame(false, parseFloat(lastDisplayedTime));
             }
         }
         
-        clickButton.addEventListener('click', function() {
+        // Обработчик для кнопки клика с поддержкой iOS
+        addTouchHandler(clickButton, function(e) {
             if (!isGameActive) return;
             
-            const currentTime = Date.now();
-            const clickTime = (currentTime - startTime) / 1000;
+            const clickTime = parseFloat(lastDisplayedTime);
             
             if (clickTime >= 9.99 && clickTime <= 10.01) {
                 endGame(true, clickTime);
@@ -193,10 +299,10 @@
             lastResult = { won, time };
             clearInterval(timerInterval);
             clickButton.disabled = true;
-            timerDisplay.textContent = time.toFixed(2);
+            
             if (won) {
                 resultDisplay.className = 'result win';
-                resultDisplay.textContent = '🎉 ПОБЕДА! 🎉';
+                resultDisplay.textContent = '🎉 ПОБЕДА! ';
             } else {
                 resultDisplay.className = 'result lose';
                 resultDisplay.textContent = `Время попытки: ${time.toFixed(2)} сек`;
@@ -206,22 +312,24 @@
             shareButton.style.display = 'inline-block';
         }
         
-        resetButton.addEventListener('click', function() {
+        // Обработчики для кнопок с поддержкой iOS
+        addTouchHandler(resetButton, function() {
             timerDisplay.textContent = '0.00';
             startGame();
         });
         
-        shareButton.addEventListener('click', function() {
+        addTouchHandler(shareButton, function() {
             if (!lastResult) return;
             
             const message = lastResult.won 
                 ? `🎉 Я попал ровно в 10.00 секунд! Попробуй тоже!`
-                : `️ Моё время: ${lastResult.time.toFixed(2)} сек. Сможешь лучше?`;
+                : `⏱️ Моё время: ${lastResult.time.toFixed(2)} сек. Сможешь лучше?`;
             
             const url = `https://vk.com/share.php?title=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         });
         
+        // Старт игры
         startGame();
     </script>
 </body>
